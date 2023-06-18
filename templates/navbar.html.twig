@@ -1,0 +1,35 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container">
+      <a class="navbar-brand" href="{{ path('index') }}">Blog</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          
+            <li class="nav-item">
+              <a class="nav-link {% if current_menu is same as("tag_cloud") %} active{% endif %}" aria-current="page" href="{{ path('tag_cloud') }}">Tagový oblak</a>
+            </li>
+            {% if is_granted('ROLE_USER') %}
+                <li class="nav-item">
+                    <a class="nav-link {% if current_menu is same as("new_blog") %} active{% endif %}" aria-current="page" href="{{ path('new_blog') }}">Nový článok</a>
+                </li>
+                <li class="nav-item">
+                   <a class="nav-link {% if current_menu is same as("settings") %} active{% endif %}" aria-current="page" href="{{ path('settings') }}">Správa článkov</a>
+                </li>
+          {% endif %}
+        </ul>
+        <div class="navbar-text d-flex">
+            {% if app.user%}
+            <a class="nav-link" href="{{ path('user_profile') }}"  title="Upraviť profil">{{ app.user.getemail}}</a>     
+            {% endif %}
+            &nbsp;&nbsp;
+            {% if app.user%}
+            <a class="nav-link" href="{{ path('app_logout') }}">Odhlásiť sa</a> 
+            {% else %}
+            <a class="nav-link {% if current_menu is same as("app_login") %} active{% endif %}" href="{{ path('app_login') }}">Prihlásiť sa</a> &nbsp;&nbsp;&nbsp;&nbsp; <a class="nav-link {% if current_menu is same as("app_login") %} active{% endif %}" href="{{ path('app_register') }}" href="{{ path('app_register') }}">Registrovať sa</a> 
+            {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>

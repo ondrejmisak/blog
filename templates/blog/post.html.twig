@@ -1,0 +1,246 @@
+{% extends 'base.html.twig' %}
+{% set current_menu = "post" %}
+{% block title post.Title~' |Blog' %}
+{% block body %}
+<style>
+    pre {
+ white-space: pre-wrap;       /* css-3 */
+ white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+ white-space: -pre-wrap;      /* Opera 4-6 */
+ white-space: -o-pre-wrap;    /* Opera 7 */
+ word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+</style>
+<div class=" my-5">
+    
+  <div class="row">
+    <div class="col"></div>
+    <div class="col-lg-8">
+      <i class="bi bi-calendar" style="font-size: 1.5rem;"></i> {{ post.getdate|date('d.m.Y  H:i') }}
+        <hr>
+        <h1 class="font-weight-bold text-dark">{{post.Title}}</h1>
+    </div>
+    <div class="col"></div>
+  </div>
+  <div class="row">
+    <div class="col"></div>
+    <div class="col-lg-8">
+      {% if post.photo %}
+      <div class="text-center">
+        <img class="w-50 my-3 rounded"  src="{{ asset('uploads/images/' ~ post.photo) }}" />
+      </div>
+      {% endif %}
+      <p class="my-2 lh-lg">
+        <pre style="font-family: var(--bs-body-font-family);">{{ post.text|raw }}</pre>  
+      </p>
+      <small>
+        {% for tag in  postTags %}
+            <a href="{{ path('index')}}?search_blog_form%5Btags%5D={{ tag.getTag() }}" class="text-primary" >{{ tag.getTag() }}{{ loop.last==false ?  ", " : ""}}</a> 
+        {% endfor %}
+      </small>
+      <hr>
+      <div class="container align-middle">
+        <div class="row">
+            <div class="d-flex flex-row mb-3">
+                <div class="p-2"><i class="bi bi-person" style="font-size:2.5rem;"></i></div>
+                <div class="p-2">
+                    <span class="fw-medium">
+                        <a href="{{ path('author', {id: post.getAuthor.getId}) }}" class="text-dark" style="font-weight: 600; line-height:1;">{{ post.getAuthor.getName() }} {{ post.getAuthor.getSurname() }}</a>
+                    </span>
+                    <p>{{ post.getAuthor.getInfo }}</p>
+                  </small>
+                </div>
+            </div>
+        </div>
+      </div>
+       
+      <hr>
+    </div>
+    <div class="col"></div>
+  </div>
+  <div class="row">
+    <div class="col"></div>
+    <div class="col-lg-8">
+        <h3 class="font-weight-bold text-dark">Komentáre</h3>
+        {{ comments|raw }}
+    </div>
+    <div class="col"></div>
+  </div>
+  
+  <div class="row">
+    
+    <div class="col"></div>
+    <div class="col-lg-8">
+        <hr>
+        <div id="commentOuterWrapper">
+            
+            <div id="commentWrapper">
+                    <button id="cancel-reply" class="btn btn-outline-danger btn-sm pb-2 border-0">Zrušiť odpoveď</button>
+                    {% form_theme formComment  '/misc/form-layout.html.twig' %}
+                    {{ form_start(formComment,)  }}
+                        {{ form_widget(formComment.comment) }}
+                        <small>{{ form_help(formComment.comment) }}</small>
+                        <div class="form-error">
+                            {{ form_errors(formComment.comment) }}
+                        </div>
+                        {{ form_widget(formComment.submit) }}
+                    {{ form_end(formComment) }}
+            </div>
+        </div>
+         
+    </div>
+    <div class="col"></div>
+  </div>
+ 
+
+</div>
+<script>
+    $( document ).ready(function() {
+
+        $(function() {
+            $("#cancel-reply").hide();
+
+            $(document).on("click", ".reply-button", function (e){
+                e.preventDefault();
+                var id = $(this).attr("id");
+                if ($(this).parent().find('ul').length > 0)
+                {    
+                    $(this).parent().find('ul:first').prepend($("#commentWrapper"));
+                }else 
+                {
+                    $(this).parent().append($("#commentWrapper"));
+                }   
+                
+                $('.reply-button').each(function() {
+                   $(this).show();
+                })
+                
+                var depth = $(this).parent().data('depth-level');
+                
+                $("#comment_form_parent").attr("value", id);
+                $("#comment_form_depth").attr("value", depth);
+                $(this).hide();
+                $("#cancel-reply").show();
+            });
+
+            $(document).on("click", "#cancel-reply", function (e){
+                e.preventDefault();
+                $("#comment_form_parent").attr("value", '');
+                $("#comment_form_depth").attr("value", 0);
+                $("#commentOuterWrapper").prepend($("#commentWrapper"));
+                $(this).hide();
+                replyButtons = $('.reply-button');
+                replyButtons.show();
+            });
+
+            $("form[name='comment_form']").on("submit", function(e) {
+                e.preventDefault();
+                var form = $(this);
+                var parent = $("#comment_form_parent").val();
+
+                $.ajax({
+                    type: "POST",
+                    url: "{{ path('add_new_comment_to_post') }}",
+                    data: $("form[name='comment_form']").serialize(),
+                    dataType: "json",
+                    cache: false,
+                    beforeSend: function() {
+                        $('#comment_form_submit').prop('disabled', true);  
+                    },
+                    success: function(data) {
+                        if(data['status'] == 404)
+                        {
+                            createToast(false,data['message']);
+                            $('#comment_form_submit').prop('disabled', false); 
+                        }
+                        if(data['status'] == 200)
+                        {   
+                            var newDepthLevel = parseInt($("#comment_form_depth").val()) +1;
+                            createToast(true,data['message']);
+                            if ($("#comment_form_depth").val() < 3) {
+                                var replyLink = `<button class="reply-button btn btn-outline-primary btn-sm pb-2 border-0" id="${data['comment']['id']}">Odpovedať</button>`;
+                            } else {
+                                var replyLink = '';
+                            }
+                            var newComment = `  
+                                <li id="li_comment_${data['comment']['id']}" data-depth-level="${newDepthLevel}">
+                                    <div>
+                                        <span class="comment-user">${data['comment']['user']}</span>
+                                        <span class="comment-date">${data['comment']['date']}</span>
+                                    </div>
+                                    <div style="margin-top:4px;">
+                                        ${data['comment']['text']}
+                                    </div>
+                                    ${replyLink}
+                                    </li>`;
+                            var parent = $("#comment_form_parent").val();
+                            
+                            if (parent == "") {
+                                $("#commentsListHolder").append(newComment);
+                            }
+                            else {
+                                if (form.parents('#li_comment_'+parent).find('ul').length > 0) { 
+                                    form.parents('#li_comment_'+parent).find('ul:first').prepend(newComment);
+                                    console.log('tu');
+                                }
+                                else {
+                                    form.parents('#li_comment_'+parent).append(`<ul class="comment">${newComment}</ul>`);
+                                } 
+                            }
+                            $("#commentOuterWrapper").prepend($("#commentWrapper"));
+                            $("#comment_form_comment").val('');
+                            $("#comment_form_parent").attr("value", '');
+                            $("#comment_form_depth").attr("value", 0);
+                            $('.reply-button').each(function() {
+                                $(this).show();
+                            })
+                            $("#cancel-reply").hide();
+                            $('#comment_form_submit').prop('disabled', false); 
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        
+                    }
+                });
+            });
+        });
+
+        function createToast(isSuccess, toastMessage) {
+            var toastContainer = createToastContainer(isSuccess, toastMessage);
+            $("#toast-holder").prepend(toastContainer);
+            toastContainer.toast('show');
+            destroyToast(toastContainer);
+        }
+
+        function createToastContainer(isSuccess, toastMessage) {
+            var toastClass = 'text-bg-primary';
+            if(isSuccess == true){
+                toastClass = 'text-bg-success';
+            }else{
+                toastClass = 'text-bg-danger';
+            }
+            var toast = $(` 
+                            <div class="toast align-items-center ${toastClass} border-0 rounded-3 " role="alert" aria-live="assertive" aria-atomic="true">
+                                <div class="d-flex">
+                                <div class="toast-body">
+                                    ${toastMessage}
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                                </div>
+                            </div>
+                        `);
+            return toast;
+        }
+
+        function destroyToast(toastContainer) {
+        setTimeout(function() {
+            toastContainer.fadeOut(500, function() {
+            toastContainer.remove();
+            });
+        }, 5000);
+        }
+         
+    });
+
+</script>
+{% endblock %}

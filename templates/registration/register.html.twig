@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+{% set current_menu = "app_register" %}
+{% block title %}Registrácia{% endblock %}
+{% use 'bootstrap_5_layout.html.twig' %}
+{% block body %}
+<div class="container">
+    <div class="row pt-5">
+        <div class="col">
+        </div>
+        <div class="col-6">
+            {% form_theme registrationForm  '/misc/form-layout.html.twig' %}
+            {{ form_start(registrationForm, {'attr': {novalidate: 'novalidate'}}) }}
+            {{ form_errors(registrationForm) }}
+                <h1 class="h3 mb-3 font-weight-normal">Registrácia</h1>
+
+
+                <div class="form-group">
+                    
+                    {{ form_label(registrationForm.name) }}
+                    {{ form_widget(registrationForm.name) }}
+                    <small>{{ form_help(registrationForm.name) }}</small>
+                    <div class="form-error">
+                        {{ form_errors(registrationForm.name) }}
+                    </div>
+
+                    {{ form_label(registrationForm.surname) }}
+                    {{ form_widget(registrationForm.surname) }}
+                    <small>{{ form_help(registrationForm.surname) }}</small>
+                    <div class="form-error">
+                        {{ form_errors(registrationForm.surname) }}
+                    </div>
+
+
+                    {{ form_label(registrationForm.email) }}
+                    {{ form_widget(registrationForm.email) }}
+                    <small>{{ form_help(registrationForm.email) }}</small>
+                    <div id="emailHelp" class="form-text">Stačí zadať fiktívny email</div>
+                    <div class="form-error">
+                        {{ form_errors(registrationForm.email) }}
+                    </div>
+
+
+
+                    {{ form_label(registrationForm.plainPassword) }}
+                    {{ form_widget(registrationForm.plainPassword) }}
+                    <small>{{ form_help(registrationForm.plainPassword) }}</small>
+                    <div class="form-error">
+                        {{ form_errors(registrationForm.plainPassword) }}
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-lg btn-primary mt-2">
+                    Registrovať
+                </button>
+                {{ form_end(registrationForm) }}
+            </div>
+        <div class="col"></div>
+    </div>
+</div>
+{% endblock %}

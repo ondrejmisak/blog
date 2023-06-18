@@ -1,0 +1,21 @@
+{% use 'bootstrap_5_layout.html.twig' %}
+{% block form_label_class -%}
+
+{%- endblock form_label_class %}
+
+{% block form_group_class -%}
+    form-control  
+{%- endblock form_group_class %}
+
+{% block form_widget_class %}
+    
+{%- endblock form_widget_class %}
+{% block submit_widget -%}
+    {%- set attr = attr|merge({class: (attr.class|default('btn-primary btn-lg mt-2'))|trim}) -%}
+    {{- parent() -}}
+{%- endblock submit_widget %}
+
+{% block form_label_errors %}
+
+{% endblock form_label_errors %}
+ 

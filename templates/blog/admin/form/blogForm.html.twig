@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% if type == 'new' %}
+    {% set current_menu = "new_blog" %}
+    {% set titlePrem = 'Nový článok |Blog' %}
+{% elseif type == 'edit' %}
+    {% set current_menu = "settings" %}
+    {% set titlePrem = 'Upraviť článok |Blog' %}
+{% endif %}
+{% block title titlePrem %}
+{% block body %}
+<div class="container">
+    <div class="row pt-5">
+        <div class="col">
+        </div>
+        <div class="col-6">
+            {% form_theme form  '/misc/form-layout.html.twig' %}
+            {{ form_start(form, {'attr': {novalidate: 'novalidate'}}) }}
+             
+            {% if type == 'new' %}
+                <h1 class="h3 mb-3 font-weight-normal">Pridať nový článok</h1>
+            {% elseif type == 'edit' %}
+                <h1 class="h3 mb-3 font-weight-normal">Upraviť článok</h1>
+            {% endif %}
+            {{ form_label(form.title) }}
+            {{ form_widget(form.title) }}
+            <small>{{ form_help(form.title) }}</small>
+            <div class="form-error">
+                {{ form_errors(form.title) }}
+            </div>
+
+            {{ form_label(form.text) }}
+            {{ form_widget(form.text) }}
+            <small>{{ form_help(form.text) }}</small>
+            <div class="form-error">
+                {{ form_errors(form.text) }}
+            </div>
+             
+            
+            {{ form_label(form.date) }}
+            {{ form_widget(form.date) }}
+            <small>{{ form_help(form.date) }}</small>
+            <div class="form-error">
+                {{ form_errors(form.date) }}
+            </div>
+            
+            {{ form_label(form.photo) }}
+            {% if type == 'edit' %}
+                {% if post.photo %}
+                    <br>
+                        <div>
+                            <img class="w-25 my-3 rounded"  src="{{ asset('uploads/images/' ~ post.photo) }}" />
+                        </div>
+                        <small>Pôvodná fotografia bude po nahraní novej zmazaná</small>
+                    <br>
+                {% endif %}
+            {% endif %}
+            {{ form_widget(form.photo) }}
+            <small>{{ form_help(form.photo) }}</small>
+            <div class="form-error">
+                {{ form_errors(form.photo) }}
+            </div>
+
+            {{ form_label(form.tags) }}
+            {{ form_widget(form.tags) }}
+            <small>{{ form_help(form.tags) }}</small>
+            <div class="form-error">
+                {{ form_errors(form.tags) }}
+            </div>
+            
+            <div class="row">
+                <div class="col-xs-12">
+                    {{ form_widget(form.back) }}
+                    {{ form_widget(form.submit) }}
+                </div>
+            </div>
+    
+{{ form_end(form) }}
+     
+</div>
+<div class="col"></div>
+</div>
+</div>
+{% endblock %}

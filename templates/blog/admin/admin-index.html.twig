@@ -1,0 +1,124 @@
+{% extends 'base.html.twig' %}
+{% set current_menu = "settings" %}
+{% block title 'Správa článkov |Blog' %}
+{% block body %}
+<div class="container">
+    <div class="row">
+     
+        <div class="col-lg-12 col-md-12 p-2">
+            <h1 class="h3 mb-3 font-weight-normal text-center pt-2">Správa článkov</h1>
+            {% if app.session.flashbag.peekAll|length > 0 %}
+                {% for type, messages in app.session.flashbag.all %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ type ? type : '' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            {% endif %}
+
+                        
+        {% if posts %}
+        <div class="table-responsive">
+            <table class="table">
+            <thead>
+                <tr>
+                <th scope="col">#</th>
+                <th scope="col">Fotka</th>
+                <th scope="col">Názov</th>
+                <th scope="col">Text</th>
+                <th scope="col">Dátum</th>
+                <th scope="col">Akcia</th>
+                <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in posts %}
+                <tr>
+                <th scope="row">{{ post.getId() }}</th>
+                <td>
+                    {% if post.photo %}
+                    <div class="" style="max-width:150px;">
+                        <a href="{{ path('settings_edit_post', {id: post.id}) }}" class="">
+                            <img class="img-thumbnail img-responsive  rounded"  src="{{ asset('uploads/images/' ~ post.photo) }}" />
+                        </a>
+                    </div>
+                    {% else %}
+                    <i class="bi bi-card-image"></i> <small>Bez fotografie</small>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ path('settings_edit_post', {id: post.id}) }}" class="text-secondary">{{ post.getTitle() }}</a>
+                    </td>
+                <td>
+                    {% set text = post.getText |split(' ') %} 
+                    {% if text|length > 10 %} 
+                    {% for t in text|slice(0, 10) %}
+                        {{ t|raw }} 
+                    {% endfor %}
+                    ...
+                    {% else %}
+                    {{ text|join(' ')[:20]|raw }}
+                    {% endif %}
+                    {% if post.text == '' %}&nbsp;{% endif %}
+                    
+                    <br><small>Tagy: 
+                        {% if postTags[post.getid] is defined %}
+                        {% for tag in  postTags[post.getid] %}
+                            {{ tag }}{{ loop.last==false ?  ", " : ""}}
+                        {% endfor %}
+                    {% endif %}
+                    </small>
+                </td>
+                    
+                <td>{{ post.getdate()|date('d.m.Y') }}</td>
+                <td> <a href="{{ path('settings_edit_post', {id: post.id}) }}" class="btn btn-primary">Upraviť</a></td>
+                <td> <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" value="{{post.id}}">Zmazať</button></td>
+                <td> </td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+            </table>
+        </div>
+        {% else %}
+            <div class="mx-auto text-center pt-5" style=" width: 300px;">
+            <p>Ešte si nepublikoval žiadny článok</p>
+            <a class="btn btn-primary" aria-current="page" href="{{ path('new_blog') }}">Vytvoriť nový článok</a>
+            </div>
+        {% endif %}
+
+        </div>
+        
+    </div>
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="deleteModalLabel">Zmazať článok?</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Článok bude nenávratne zmazaný.
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zrušiť</button>
+              <button type="button" class="btn btn-primary"   data-bs-delete="proceeddelete">Zmazať článok</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+</div>
+<script>
+    $("#deleteModal").on("shown.bs.modal", function(event) {  
+        var id   = $(this).val();   
+        var post = event.relatedTarget.value;
+        var url = '{{ path("settings_delete_post", {id: 'id'}) }}'; 
+            url = url.replace("id", post);
+        $("#deleteModal button.btn.btn-primary").on("click", function(e) {
+            window.location.href =  url 
+        });
+    });
+</script>
+{% endblock %} 

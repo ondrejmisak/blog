@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+{% set current_menu = "user_settings" %}
+{% block title 'Profil |Blog' %}
+{% block body %}
+<div class="container">
+    <div class="row pt-5">
+        {% if app.session.flashbag.peekAll|length > 0 %}
+            {% for type, messages in app.session.flashbag.all %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ type ? type : '' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+        <div class="col">
+        </div>
+        <div class="col-6">
+            
+            {% form_theme form  '/misc/form-layout.html.twig' %}
+            {{ form_start(form, {'attr': {novalidate: 'novalidate'}}) }}
+                <h1 class="h3 mb-3 font-weight-normal">Upraviť profil</h1>
+                
+
+                {{ form_label(form.name) }}
+                {{ form_widget(form.name) }}
+                <small>{{ form_help(form.name) }}</small>
+                <div class="form-error">
+                    {{ form_errors(form.name) }}
+                </div>
+
+                {{ form_label(form.surname) }}
+                {{ form_widget(form.surname) }}
+                <small>{{ form_help(form.surname) }}</small>
+                <div class="form-error">
+                    {{ form_errors(form.surname) }}
+                </div>
+
+                {{ form_label(form.info) }}
+                {{ form_widget(form.info) }}
+                <small>{{ form_help(form.info) }}</small>
+                <div class="form-error">
+                    {{ form_errors(form.info) }}
+                </div>
+                
+                {{ form_widget(form.submit) }}
+
+            {{ form_end(form) }}
+     
+        </div>
+        <div class="col"></div>
+    </div>
+</div>
+{% endblock %}

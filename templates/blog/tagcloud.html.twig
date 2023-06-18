@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+{% set current_menu = "tag_cloud" %}
+{% block title 'Tagový oblak |Blog' %}
+{% block body %}
+<div class=" my-5">
+  <style>
+    p {
+        max-width: 500px;
+        margin: auto;
+      }
+  </style>
+  <div class="row">
+    <div class="col"></div>
+    <div class="col-lg-8 text-center ">
+        {% if app.session.flashbag.peekAll|length > 0 %}
+            {% for type, messages in app.session.flashbag.all %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ type ? type : '' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+        
+        {% if tagcloud %}
+        <p>
+            {% for tag in tagcloud %}
+                {{ tag|raw }}&nbsp;
+            {% endfor %}
+        </p>
+        {% endif %}
+    </div>
+    <div class="col"></div>
+  </div>
+  
+</div>
+ 
+{% endblock %}
